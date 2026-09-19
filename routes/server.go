@@ -1567,13 +1567,19 @@ func (fes *APIServer) NewRouter() *muxtrace.Router {
 			fes.JumioBegin,
 			PublicAccess,
 		},
-		{
-			"JumioCallback",
-			[]string{"POST", "OPTIONS"},
-			RoutePathJumioCallback,
-			fes.JumioCallback,
-			PublicAccess,
-		},
+		// SECURITY / DISABLED: JumioCallback is an unauthenticated PublicAccess endpoint that
+		// marks any public key JumioVerified and triggers a StarterDESO payout based entirely
+		// on attacker-controllable request-body fields. Jumio KYC is permanently disabled, so
+		// the route is intentionally left unregistered: /api/v0/jumio-callback now 404s on
+		// every ingress path (Cloudflare hosts, nginx, and the direct :81 LoadBalancers). Do
+		// NOT restore without server-side callback verification against Jumio's API + auth.
+		// {
+		// 	"JumioCallback",
+		// 	[]string{"POST", "OPTIONS"},
+		// 	RoutePathJumioCallback,
+		// 	fes.JumioCallback,
+		// 	PublicAccess,
+		// },
 		{
 			"JumioFlowFinished",
 			[]string{"POST", "OPTIONS"},

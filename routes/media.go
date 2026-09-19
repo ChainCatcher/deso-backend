@@ -31,11 +31,14 @@ import (
 
 // GetGCSClient ...
 func (fes *APIServer) GetGCSClient(ctx context.Context) (*storage.Client, error) {
-	// If we have credentials, use them.  Otherwise, return a client without authentication.
+	// Keep explicit credential-file support for local development and legacy
+	// deployments. Production leaves the path empty and relies on Application
+	// Default Credentials supplied by GKE Workload Identity. This avoids mounting
+	// long-lived service-account private keys in node pods.
 	if fes.Config.GCPCredentialsPath != "" {
 		return storage.NewClient(ctx, option.WithCredentialsFile(fes.Config.GCPCredentialsPath))
 	} else {
-		return storage.NewClient(ctx, option.WithoutAuthentication())
+		return storage.NewClient(ctx)
 	}
 }
 
